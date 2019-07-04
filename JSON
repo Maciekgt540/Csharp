@@ -1,0 +1,110 @@
+using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Soap;
+using Newtonsoft.Json;
+using System.Xml;
+
+namespace ConsoleApp3
+{
+    internal class Program
+    {
+        private static void zapis(Punkt p1, string st_)
+        {
+            FileStream str1 = File.Create(st_);
+            SoapFormatter form1 = new SoapFormatter();
+            form1.Serialize(str1, p1);
+            str1.Close();
+        }
+
+        private static void zapisT(Punkt[] p)
+        {
+            FileStream str1 = File.Create("Punkt1.txt");
+            SoapFormatter form1 = new SoapFormatter();
+            form1.Serialize(str1, p);
+            str1.Close();
+        }
+
+        private static Punkt odczyt()
+        {
+            Punkt p;
+            FileStream str1 = File.OpenRead("Punkt1.txt");
+            SoapFormatter form1 = new SoapFormatter();
+            p = form1.Deserialize(str1) as Punkt;
+            return p;
+        }
+
+        private static Punkt odczyt(string st_)
+        {
+            Punkt p;
+            FileStream str1 = File.OpenRead(st_);
+            SoapFormatter form1 = new SoapFormatter();
+            p = form1.Deserialize(str1) as Punkt;
+            return p;
+        }
+
+        private static Punkt[] odczytT()
+        {
+            Punkt[] p;
+            FileStream str1 = File.OpenRead("Punkt1.txt");
+            SoapFormatter form1 = new SoapFormatter();
+            p = form1.Deserialize(str1) as Punkt[];
+            return p;
+        }
+
+        private static void Main(string[] args)
+        {
+            Punkt p1 = new Punkt(1, 2);
+            Punkt p2 = new Punkt(91, 432);
+
+            Console.WriteLine(p1.wysw());
+            Console.WriteLine(p2.wysw());
+
+            zapis(p1, "p1.xml");
+            zapis(p2, "p2.xml");
+
+            Punkt p2o, p3o;
+
+            p2o = odczyt("p2.txt");
+            p3o = odczyt("p1.txt");
+
+
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load("p1.xml"); 
+            string jsonText = JsonConvert.SerializeXmlNode(xmlDoc);
+
+            //System.IO.File.WriteAllText(); 
+            // DODAC -> NuGet(narzedzia) -> konsola -> wkleic    Install-Package Newtonsoft.Json -Version 11.0.2
+            System.IO.File.WriteAllText(@"D:\path.txt", jsonText);
+
+            Console.WriteLine(jsonText);
+
+            Console.WriteLine("Odcztane z pliku:");
+            Console.WriteLine(p2o.wysw());
+            Console.WriteLine(p3o.wysw());
+
+            Console.ReadKey();
+        }
+    }
+}
+
+[Serializable]
+internal class Punkt
+{
+    public double x, y;
+
+    public Punkt(double x, double y)
+    {
+        this.x = x;
+        this.y = y;
+    }
+
+    public string wysw()
+    {
+        return "Punkt x=" + x + " y=" + y + " odl()=" + odl();
+    }
+
+    public double odl()
+    {
+        return Math.Sqrt(x * x + y * y);
+    }
+}
